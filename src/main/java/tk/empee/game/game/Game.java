@@ -16,11 +16,12 @@ import tk.empee.game.utils.Timer;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Game {
+@SuppressWarnings("unused")
+public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
-    private final GameHandler gameHandler;
+    private final GameHandler<T, K, J> gameHandler;
 
-    private final Arena arena;
+    private final K arena;
 
     private final int minPlayers;
     private final int maxPlayers;
@@ -30,8 +31,8 @@ public abstract class Game {
 
     private final long delayEndTime;
 
-    protected final ArrayList<PlayerStatus> players = new ArrayList<>();
-    protected final ArrayList<PlayerStatus> losers = new ArrayList<>();
+    protected final ArrayList<T> players = new ArrayList<>();
+    protected final ArrayList<T> losers = new ArrayList<>();
 
 
     protected GameStatus status;
@@ -42,11 +43,11 @@ public abstract class Game {
      * @param delayEndTime Time in seconds to wait before doing cleaning operations (For instance: <br>
      *                     kicking out players, resetting the arena etc... )
      */
-    public Game(GameHandler gameHandler, Arena arena, int minPlayers, int maxPlayers, int countdownTime, int delayEndTime) {
+    public Game(GameHandler<T, K, J> gameHandler, K arena, int minPlayers, int maxPlayers, int countdownTime, int delayEndTime) {
         this.gameHandler = gameHandler;
 
         this.arena = arena;
-        this.arena.setBusy(this);
+        this.arena.setBusy((J) this);
 
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
@@ -57,14 +58,14 @@ public abstract class Game {
         status = GameStatus.STARTING;
     }
 
-    public final Arena getArena() {
+    public final K getArena() {
         return arena;
     }
 
-    public final List<PlayerStatus> getPlayers() {
+    public final List<T> getPlayers() {
         return players;
     }
-    public final List<PlayerStatus> getLosers() {
+    public final List<T> getLosers() {
         return losers;
     }
 
@@ -77,7 +78,7 @@ public abstract class Game {
             throw new GameAlreadyStarted();
         }
 
-        players.add(createPlayerStatus(this, player));
+        players.add(createPlayerStatus(player));
 
         if (players.size() >= minPlayers) {
             if(players.size() == maxPlayers) {
@@ -88,7 +89,7 @@ public abstract class Game {
         }
 
     }
-    public void removePlayer(PlayerStatus playerStatus, PlayerLeaveGameEvent.Reason reason) throws PlayerNotInGame {
+    public void removePlayer(T playerStatus, PlayerLeaveGameEvent.Reason reason) throws PlayerNotInGame {
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
@@ -103,14 +104,14 @@ public abstract class Game {
         losers.remove(playerStatus);
 
     }
-    protected void removeFromStartingGame(PlayerStatus playerStatus) {
+    protected void removeFromStartingGame(T playerStatus) {
         if(players.size() == minPlayers) {
             cancelCountdown();
         }
         players.remove(playerStatus);
     }
-    protected void leaveActions(PlayerStatus playerStatus, PlayerLeaveGameEvent.Reason reason) {
-        Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent(playerStatus, reason));
+    protected void leaveActions(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
+        Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent<>(playerStatus, reason));
         gameHandler.onPlayerLeave(playerStatus);
         playerStatus.delete();
     }
@@ -142,7 +143,7 @@ public abstract class Game {
      */
     protected void onCountdown(int secondsPassed) {}
 
-    public void addLoser(PlayerStatus playerStatus) throws PlayerNotInGame {
+    public void addLoser(T playerStatus) throws PlayerNotInGame {
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
@@ -151,11 +152,11 @@ public abstract class Game {
         }
 
         if(players.remove(playerStatus)) {
-            Bukkit.getPluginManager().callEvent(new PlayerLostGameEvent(playerStatus));
+            Bukkit.getPluginManager().callEvent(new PlayerLostGameEvent<>(playerStatus));
             losers.add(playerStatus);
             gameHandler.onPlayerLost(playerStatus);
 
-            if(gameHandler.checksWinCondition(this)) {
+            if(gameHandler.checksWinCondition((J) this)) {
                 prepareStop();
             }
 
@@ -163,31 +164,31 @@ public abstract class Game {
     }
 
     protected void start() {
-        Bukkit.getPluginManager().callEvent(new GameStartEvent(this));
+        Bukkit.getPluginManager().callEvent(new GameStartEvent<>((J) this));
         cancelCountdown();
 
         status = GameStatus.STARTED;
-        gameHandler.onStart(this);
+        gameHandler.onStart((J) this);
     }
     protected void prepareStop() {
-        Bukkit.getPluginManager().callEvent(new GameEndEvent(this));
+        Bukkit.getPluginManager().callEvent(new GameEndEvent<>((J) this));
         status = GameStatus.ENDING;
 
-        for(PlayerStatus playerStatus : players) {
-            Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent(playerStatus));
+        for(T playerStatus : players) {
+            Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
             gameHandler.onPlayerWin(playerStatus);
         }
 
-        gameHandler.onEnd(this);
+        gameHandler.onEnd((J) this);
         startDelayedStop();
     }
     protected void stop() {
         status = GameStatus.ENDED;
 
-        ArrayJoiner<PlayerStatus> players = new ArrayJoiner<>(this.players, new ArrayJoiner<>(losers));
+        ArrayJoiner<T> players = new ArrayJoiner<>(this.players, new ArrayJoiner<>(losers));
         players.foreach( playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
 
-        Bukkit.getPluginManager().callEvent(new GameResetArenaEvent(this));
+        Bukkit.getPluginManager().callEvent(new GameResetArenaEvent<>( (J) this));
         gameHandler.resetArena(arena);
         arena.setFree();
     }
@@ -212,6 +213,6 @@ public abstract class Game {
         stop();
     }
 
-    protected abstract PlayerStatus createPlayerStatus(Game game, Player player) throws PlayerAlreadyInGame;
+    protected abstract T createPlayerStatus(Player player) throws PlayerAlreadyInGame;
 
 }

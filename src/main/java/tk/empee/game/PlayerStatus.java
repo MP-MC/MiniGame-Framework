@@ -1,16 +1,17 @@
 package tk.empee.game;
 
 import org.bukkit.entity.Player;
+import tk.empee.game.arena.Arena;
 import tk.empee.game.exceptions.PlayerAlreadyInGame;
 import tk.empee.game.game.Game;
 
 import java.util.TreeSet;
 
-public class PlayerStatus implements Comparable<PlayerStatus> {
+public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> implements Comparable<PlayerStatus<?, ?, ?>> {
 
-    private static final TreeSet<PlayerStatus> playerStatuses = new TreeSet<>();
-    public static PlayerStatus get(Player player) {
-        for(PlayerStatus status : playerStatuses) {
+    private static final TreeSet<PlayerStatus<?, ?, ?>> playerStatuses = new TreeSet<>();
+    public static PlayerStatus<?, ?, ?> get(Player player) {
+        for(PlayerStatus<?, ?, ?> status : playerStatuses) {
             if(status.equals(player)) {
                 return status;
             }
@@ -19,9 +20,9 @@ public class PlayerStatus implements Comparable<PlayerStatus> {
     }
 
     private final Player player;
-    private final Game game;
+    private final J game;
 
-    public PlayerStatus(Game game, Player player) throws PlayerAlreadyInGame {
+    public PlayerStatus(J game, Player player) throws PlayerAlreadyInGame {
         this.player = player;
         this.game = game;
 
@@ -33,8 +34,7 @@ public class PlayerStatus implements Comparable<PlayerStatus> {
     }
 
     public final Player getPlayer() { return player; }
-
-    public final Game getGame() {
+    public final J getGame() {
         return game;
     }
 

@@ -4,8 +4,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import tk.empee.game.PlayerStatus;
+import tk.empee.game.arena.Arena;
+import tk.empee.game.game.Game;
 
-public class PlayerWinGameEvent extends Event {
+public class PlayerWinGameEvent<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -13,9 +15,9 @@ public class PlayerWinGameEvent extends Event {
         return HANDLERS;
     }
 
-    private final PlayerStatus playerStatus;
+    private final T playerStatus;
 
-    public PlayerWinGameEvent(PlayerStatus playerStatus) {
+    public PlayerWinGameEvent(T playerStatus) {
         this.playerStatus = playerStatus;
     }
 
@@ -28,7 +30,7 @@ public class PlayerWinGameEvent extends Event {
     public Player getPlayer() {
         return playerStatus.getPlayer();
     }
-    public PlayerStatus getPlayerStatus() {
+    public T getPlayerStatus() {
         return this.playerStatus;
     }
 

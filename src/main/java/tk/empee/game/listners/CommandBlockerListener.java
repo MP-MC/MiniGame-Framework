@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import tk.empee.game.PlayerStatus;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 

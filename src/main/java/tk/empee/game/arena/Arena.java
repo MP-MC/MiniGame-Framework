@@ -1,13 +1,14 @@
 package tk.empee.game.arena;
 
+import tk.empee.game.PlayerStatus;
 import tk.empee.game.game.Game;
 import tk.empee.game.game.GameStatus;
 
-public class Arena {
+public class Arena<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
-    private Game game;
+    private J game;
 
-    public void setBusy(Game game) {
+    public void setBusy(J game) {
 
         if(this.game != null) {
             throw new IllegalStateException("You can't change an arena of a game while there is a game in progress inside it");
@@ -30,7 +31,7 @@ public class Arena {
 
     }
 
-    public Game getRunningGame() {
+    public J getRunningGame() {
         return game;
     }
 

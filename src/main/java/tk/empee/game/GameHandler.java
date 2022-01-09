@@ -14,12 +14,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class GameHandler {
+@SuppressWarnings("unused")
+public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
     private final JavaPlugin plugin;
     private final PluginManager pluginManager = Bukkit.getPluginManager();
 
-    private final ArrayList<Arena> arenas = new ArrayList<>();
+    private final ArrayList<K> arenas = new ArrayList<>();
 
 
     public GameHandler(JavaPlugin plugin) {
@@ -41,24 +42,24 @@ public abstract class GameHandler {
     }
 
 
-    public Arena getFreeArena() {
-        for(Arena arena : arenas ) {
+    public K getFreeArena() {
+        for(K arena : arenas ) {
             if(arena.getRunningGame() == null) {
                 return arena;
             }
         }
         return null;
     }
-    public final void addArena(Arena arena) {
+    public final void addArena(K arena) {
         arenas.add(arena);
     }
 
-    public List<Game> getGames() {
+    public List<J> getGames() {
 
-        ArrayList<Game> games = new ArrayList<>();
+        ArrayList<J> games = new ArrayList<>();
 
-        for(Arena arena : arenas) {
-            Game game = arena.getRunningGame();
+        for(Arena<T, K, J> arena : arenas) {
+            J game = arena.getRunningGame();
             if(game != null) {
                 games.add(game);
             }
@@ -68,16 +69,16 @@ public abstract class GameHandler {
 
     }
 
-    public abstract void onStart(Game game);
-    public abstract void onEnd(Game game);
+    public abstract void onStart(J game);
+    public abstract void onEnd(J game);
 
-    public abstract boolean checksWinCondition(Game game);
+    public abstract boolean checksWinCondition(J game);
 
-    public abstract void onPlayerLost(PlayerStatus playerStatus);
-    public abstract void onPlayerWin(PlayerStatus playerStatus);
+    public abstract void onPlayerLost(T playerStatus);
+    public abstract void onPlayerWin(T playerStatus);
 
-    public abstract void onPlayerLeave(PlayerStatus playerStatus);
+    public abstract void onPlayerLeave(T playerStatus);
 
-    public abstract void resetArena(Arena arena);
+    public abstract void resetArena(K arena);
 
 }

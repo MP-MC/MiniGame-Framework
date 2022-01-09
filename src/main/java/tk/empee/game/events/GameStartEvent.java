@@ -2,9 +2,11 @@ package tk.empee.game.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import tk.empee.game.PlayerStatus;
+import tk.empee.game.arena.Arena;
 import tk.empee.game.game.Game;
 
-public class GameStartEvent extends Event {
+public class GameStartEvent<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -12,9 +14,9 @@ public class GameStartEvent extends Event {
         return HANDLERS;
     }
 
-    private final Game game;
+    private final J game;
 
-    public GameStartEvent(Game game) {
+    public GameStartEvent(J game) {
         this.game = game;
     }
 
@@ -24,7 +26,7 @@ public class GameStartEvent extends Event {
         return HANDLERS;
     }
 
-    public Game getGame() {
+    public J getGame() {
         return game;
     }
 
