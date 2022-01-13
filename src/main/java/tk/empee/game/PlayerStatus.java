@@ -1,5 +1,6 @@
 package tk.empee.game;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import tk.empee.game.arena.Arena;
 import tk.empee.game.exceptions.PlayerAlreadyInGame;
@@ -22,6 +23,8 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
     private final Player player;
     private final J game;
 
+    private boolean isTeleporting;
+
     public PlayerStatus(J game, Player player) throws PlayerAlreadyInGame {
         this.player = player;
         this.game = game;
@@ -38,6 +41,12 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
         return game;
     }
 
+    public void teleport(Location location) {
+        allowTeleport();
+        player.teleport(location);
+        disallowTeleport();
+    }
+
     public final void delete() {
         playerStatuses.remove(this);
     }
@@ -50,4 +59,11 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
     public final int compareTo(PlayerStatus o) {
         return player.getName().compareTo(o.player.getName());
     }
+
+    public boolean isTeleporting() {
+        return isTeleporting;
+    }
+    public synchronized void allowTeleport() { isTeleporting = true; }
+    public synchronized void disallowTeleport() { isTeleporting = false; }
+
 }

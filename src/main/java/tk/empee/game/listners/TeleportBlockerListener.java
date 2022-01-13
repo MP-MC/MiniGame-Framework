@@ -13,8 +13,11 @@ public final class TeleportBlockerListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         if(!event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL)) {
-            if (!player.isOp() && PlayerStatus.get(player) != null) {
-                event.setCancelled(true);
+            PlayerStatus playerStatus = PlayerStatus.get(player);
+            if (!player.isOp() && playerStatus != null) {
+                if(!playerStatus.isTeleporting()) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
