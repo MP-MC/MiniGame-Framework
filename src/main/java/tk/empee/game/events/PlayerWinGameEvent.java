@@ -3,6 +3,7 @@ package tk.empee.game.events;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import tk.empee.game.PlayerStatus;
 import tk.empee.game.arena.Arena;
 import tk.empee.game.game.Game;
@@ -23,7 +24,7 @@ public class PlayerWinGameEvent<T extends PlayerStatus<T, K, J>, K extends Arena
 
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

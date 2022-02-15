@@ -43,7 +43,8 @@ public class PlayerLeaveGameEvent<T extends PlayerStatus<T, K, J>, K extends Are
     public enum Reason {
         DISCONNECT,
         LEFT,
-        GAME_ENDED
+        GAME_ENDED,
+        OTHER
     }
 
 }
