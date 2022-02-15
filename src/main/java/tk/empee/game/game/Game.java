@@ -37,7 +37,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     protected final TreeMap<UUID, T> losers = new TreeMap<>();
 
 
-    protected GameStatus status;
+    protected Status status;
 
     /**
      * @param countdownTime Time in seconds to wait before the game can start after it <br>
@@ -57,7 +57,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         this.countdownTime = countdownTime;
         this.delayEndTime = delayEndTime * 20L;
 
-        status = GameStatus.STARTING;
+        status = Status.STARTING;
     }
 
     public final K getArena() {
@@ -74,12 +74,12 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         return players.get(player.getUniqueId());
     }
 
-    public final GameStatus getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
     public void addPlayer(Player player) throws GameAlreadyStarted, PlayerAlreadyInGame {
-        if(!status.equals(GameStatus.STARTING)) {
+        if(!status.equals(Status.STARTING)) {
             throw new GameAlreadyStarted();
         }
 
@@ -105,9 +105,9 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
-        } else if(status.equals(GameStatus.STARTING)) {
+        } else if(status.equals(Status.STARTING)) {
             removeFromStartingGame(playerStatus, reason);
-        } else if(status.equals(GameStatus.STARTED)) {
+        } else if(status.equals(Status.STARTED)) {
             removeFromStartedGame(playerStatus, reason);
         }
 
@@ -160,7 +160,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
-        } else if(status != GameStatus.STARTED) {
+        } else if(status != Status.STARTED) {
             return;
         }
 
@@ -180,12 +180,12 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         Bukkit.getPluginManager().callEvent(new GameStartEvent<>((J) this));
         cancelCountdown();
 
-        status = GameStatus.STARTED;
+        status = Status.STARTED;
         gameHandler.onStart((J) this);
     }
     protected void prepareStop() {
         Bukkit.getPluginManager().callEvent(new GameEndEvent<>((J) this));
-        status = GameStatus.ENDING;
+        status = Status.ENDING;
 
         for(T playerStatus : players.values()) {
             Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
@@ -196,7 +196,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         startDelayedStop();
     }
     protected void stop() {
-        status = GameStatus.ENDED;
+        status = Status.ENDED;
 
         ArrayJoiner<T> players = new ArrayJoiner<>(this.players.values(), new ArrayJoiner<>(losers.values()));
         players.foreach(playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
@@ -211,7 +211,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
     public void forceStart() {
 
-        if(status != GameStatus.STARTING) {
+        if(status != Status.STARTING) {
             return;
         }
 
@@ -219,7 +219,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
     public void forceStop() {
 
-        if(status == GameStatus.ENDED) {
+        if(status == Status.ENDED) {
             return;
         }
 
@@ -227,5 +227,14 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
 
     protected abstract T createPlayerStatus(Player player);
+
+    public enum Status {
+
+        STARTING,
+        STARTED,
+        ENDING,
+        ENDED
+
+    }
 
 }
