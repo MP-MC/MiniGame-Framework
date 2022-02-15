@@ -2,6 +2,7 @@ package tk.empee.game;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import tk.empee.game.arena.Arena;
 import tk.empee.game.exceptions.PlayerAlreadyInGame;
 import tk.empee.game.game.Game;
@@ -11,6 +12,7 @@ import java.util.TreeSet;
 public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> implements Comparable<PlayerStatus<?, ?, ?>> {
 
     private static final TreeSet<PlayerStatus<?, ?, ?>> playerStatuses = new TreeSet<>();
+    @Nullable
     public static PlayerStatus<?, ?, ?> get(Player player) {
         for(PlayerStatus<?, ?, ?> status : playerStatuses) {
             if(status.equals(player)) {
@@ -23,7 +25,7 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
     private final Player player;
     private final J game;
 
-    private boolean isTeleporting;
+    private boolean teleportFlag;
 
     public PlayerStatus(J game, Player player) throws PlayerAlreadyInGame {
         this.player = player;
@@ -60,10 +62,10 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
         return player.getName().compareTo(o.player.getName());
     }
 
-    public boolean isTeleporting() {
-        return isTeleporting;
+    public boolean canTeleport() {
+        return teleportFlag;
     }
-    public synchronized void allowTeleport() { isTeleporting = true; }
-    public synchronized void disallowTeleport() { isTeleporting = false; }
+    public void allowTeleport() { teleportFlag = true; }
+    public void disallowTeleport() { teleportFlag = false; }
 
 }

@@ -14,6 +14,7 @@ import tk.empee.game.utils.ArrayJoiner;
 import tk.empee.game.utils.Timer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -63,10 +64,10 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
 
     public final List<T> getPlayers() {
-        return players;
+        return Collections.unmodifiableList(players);
     }
     public final List<T> getLosers() {
-        return losers;
+        return Collections.unmodifiableList(losers);
     }
 
     public final GameStatus getStatus() {
@@ -139,7 +140,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
 
     /**
-     * This method will be executed every second during the starting countdown
+     * This method is going to be executed every second during the countdown
      */
     protected void onCountdown(int secondsPassed) {}
 
@@ -159,7 +160,6 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             if(gameHandler.checksWinCondition((J) this)) {
                 prepareStop();
             }
-
         }
     }
 

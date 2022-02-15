@@ -12,6 +12,7 @@ import tk.empee.game.listners.TeleportBlockerListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -31,6 +32,9 @@ public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Are
     public final JavaPlugin getPlugin() { return plugin; }
 
 
+    protected void setCommandBlocker() {
+        setCommandBlocker(Collections.EMPTY_LIST);
+    }
     protected void setCommandBlocker(Collection<String> whitelist) {
         pluginManager.registerEvents(new CommandBlockerListener(whitelist), plugin);
     }
@@ -54,7 +58,7 @@ public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Are
         arenas.add(arena);
     }
 
-    public List<J> getGames() {
+    public List<J> getRunningGames() {
 
         ArrayList<J> games = new ArrayList<>();
 
@@ -65,7 +69,7 @@ public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Are
             }
         }
 
-        return games;
+        return Collections.unmodifiableList(games);
 
     }
 

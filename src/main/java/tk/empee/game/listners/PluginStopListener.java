@@ -23,12 +23,11 @@ public class PluginStopListener implements Listener {
         if(event.getPlugin().equals(plugin)) {
 
             plugin.getLogger().info("Stopping all games...");
-            for(Game<?, ?, ?> game : gameHandler.getGames()) {
+            for(Game<?, ?, ?> game : gameHandler.getRunningGames()) {
                 game.forceStop();
             }
 
             plugin.getLogger().info("All games has been force stopped!");
-
 
         }
 
