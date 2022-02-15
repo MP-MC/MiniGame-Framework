@@ -1,8 +1,10 @@
 package tk.empee.game;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 import tk.empee.game.arena.Arena;
 import tk.empee.game.game.Game;
 import tk.empee.game.listners.BlockDisconnectListener;
@@ -23,26 +25,44 @@ public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Are
 
     private final ArrayList<K> arenas = new ArrayList<>();
 
-
     public GameHandler(JavaPlugin plugin) {
         this.plugin = plugin;
 
-        pluginManager.registerEvents(new PluginStopListener(plugin, this), plugin);
+        pluginManager.registerEvents(new PluginStopListener(this), plugin);
     }
     public final JavaPlugin getPlugin() { return plugin; }
 
+    @Nullable
+    public T getPlayerStatus(Player player) {
+
+        for(K arena : arenas) {
+            J game = arena.getRunningGame();
+            if(game != null) {
+                T playerStatus = game.getPlayerStatus(player);
+                if(playerStatus != null) {
+                    return playerStatus;
+                }
+            }
+        }
+
+        return null;
+
+    }
+    public boolean isPlaying(Player player) {
+        return getPlayerStatus(player) != null;
+    }
 
     protected void setCommandBlocker() {
         setCommandBlocker(Collections.EMPTY_LIST);
     }
     protected void setCommandBlocker(Collection<String> whitelist) {
-        pluginManager.registerEvents(new CommandBlockerListener(whitelist), plugin);
+        pluginManager.registerEvents(new CommandBlockerListener(this, whitelist), plugin);
     }
     protected void setTeleportBlocker() {
-        pluginManager.registerEvents(new TeleportBlockerListener(), plugin);
+        pluginManager.registerEvents(new TeleportBlockerListener(this), plugin);
     }
     protected void setDisconnectBlocker() {
-        pluginManager.registerEvents(new BlockDisconnectListener(), plugin);
+        pluginManager.registerEvents(new BlockDisconnectListener(this), plugin);
     }
 
 

@@ -13,9 +13,10 @@ import tk.empee.game.exceptions.PlayerNotInGame;
 import tk.empee.game.utils.ArrayJoiner;
 import tk.empee.game.utils.Timer;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.TreeMap;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
@@ -32,8 +33,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
     private final long delayEndTime;
 
-    protected final ArrayList<T> players = new ArrayList<>();
-    protected final ArrayList<T> losers = new ArrayList<>();
+    protected final TreeMap<UUID, T> players = new TreeMap<>();
+    protected final TreeMap<UUID, T> losers = new TreeMap<>();
 
 
     protected GameStatus status;
@@ -63,11 +64,14 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         return arena;
     }
 
-    public final List<T> getPlayers() {
-        return Collections.unmodifiableList(players);
+    public final Collection<T> getPlayers() {
+        return Collections.unmodifiableCollection(players.values());
     }
-    public final List<T> getLosers() {
-        return Collections.unmodifiableList(losers);
+    public final Collection<T> getLosers() {
+        return Collections.unmodifiableCollection(losers.values());
+    }
+    public final T getPlayerStatus(Player player) {
+        return players.get(player.getUniqueId());
     }
 
     public final GameStatus getStatus() {
@@ -79,7 +83,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             throw new GameAlreadyStarted();
         }
 
-        players.add(createPlayerStatus(player));
+        T playerStatus = createPlayerStatus(player);
+        players.put(player.getUniqueId(), playerStatus);
 
         if (players.size() >= minPlayers) {
             if(players.size() == maxPlayers) {
@@ -90,31 +95,38 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         }
 
     }
-    public void removePlayer(T playerStatus, PlayerLeaveGameEvent.Reason reason) throws PlayerNotInGame {
+    public void removePlayer(Player player, PlayerLeaveGameEvent.Reason reason) {
+        T playerStatus = getPlayerStatus(player);
+        if(playerStatus != null) {
+            removePlayer(playerStatus, reason);
+        }
+    }
+    protected void removePlayer(T playerStatus, PlayerLeaveGameEvent.Reason reason) throws PlayerNotInGame {
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
         } else if(status.equals(GameStatus.STARTING)) {
-            removeFromStartingGame(playerStatus);
+            removeFromStartingGame(playerStatus, reason);
         } else if(status.equals(GameStatus.STARTED)) {
-            addLoser(playerStatus);
+            removeFromStartedGame(playerStatus, reason);
         }
 
-        leaveActions(playerStatus, reason);
-        //Try to remove otherwise fail silently
-        losers.remove(playerStatus);
-
     }
-    protected void removeFromStartingGame(T playerStatus) {
+    protected void removeFromStartingGame(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
         if(players.size() == minPlayers) {
             cancelCountdown();
         }
         players.remove(playerStatus);
+        leaveActions(playerStatus, reason);
+    }
+    protected void removeFromStartedGame(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
+        addLoser(playerStatus);
+        leaveActions(playerStatus, reason);
+        losers.remove(playerStatus);
     }
     protected void leaveActions(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
         Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent<>(playerStatus, reason));
         gameHandler.onPlayerLeave(playerStatus);
-        playerStatus.delete();
     }
 
     protected void cancelCountdown() {
@@ -152,9 +164,10 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             return;
         }
 
-        if(players.remove(playerStatus)) {
+        UUID playerUUID = playerStatus.getPlayer().getUniqueId();
+        if(players.remove(playerUUID) != null) {
             Bukkit.getPluginManager().callEvent(new PlayerLostGameEvent<>(playerStatus));
-            losers.add(playerStatus);
+            losers.put(playerUUID, playerStatus);
             gameHandler.onPlayerLost(playerStatus);
 
             if(gameHandler.checksWinCondition((J) this)) {
@@ -174,7 +187,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         Bukkit.getPluginManager().callEvent(new GameEndEvent<>((J) this));
         status = GameStatus.ENDING;
 
-        for(T playerStatus : players) {
+        for(T playerStatus : players.values()) {
             Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
             gameHandler.onPlayerWin(playerStatus);
         }
@@ -185,8 +198,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     protected void stop() {
         status = GameStatus.ENDED;
 
-        ArrayJoiner<T> players = new ArrayJoiner<>(this.players, new ArrayJoiner<>(losers));
-        players.foreach( playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
+        ArrayJoiner<T> players = new ArrayJoiner<>(this.players.values(), new ArrayJoiner<>(losers.values()));
+        players.foreach(playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
 
         Bukkit.getPluginManager().callEvent(new GameResetArenaEvent<>( (J) this));
         gameHandler.resetArena(arena);
@@ -213,6 +226,6 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         stop();
     }
 
-    protected abstract T createPlayerStatus(Player player) throws PlayerAlreadyInGame;
+    protected abstract T createPlayerStatus(Player player);
 
 }
