@@ -124,7 +124,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
     protected void leaveActions(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
         Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent<>(playerStatus, reason));
-        gamesManager.onPlayerLeave(playerStatus);
+        onPlayerLeave(playerStatus);
     }
 
     protected void cancelCountdown() {
@@ -168,9 +168,9 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
             playerStatus.setLoser();
             losers.put(playerUUID, playerStatus);
-            gamesManager.onPlayerLost(playerStatus);
+            onPlayerLose(playerStatus);
 
-            if(gamesManager.checksWinCondition((J) this)) {
+            if(hasEndConditions()) {
                 prepareStop();
             }
         }
@@ -181,7 +181,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         cancelCountdown();
 
         status = Status.STARTED;
-        gamesManager.onStart((J) this);
+        onStart();
     }
     protected void prepareStop() {
         Bukkit.getPluginManager().callEvent(new GameEndEvent<>((J) this));
@@ -190,10 +190,10 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         for(T playerStatus : players.values()) {
             playerStatus.setWinner();
             Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
-            gamesManager.onPlayerWin(playerStatus);
+            onPlayerWin(playerStatus);
         }
 
-        gamesManager.onEnd((J) this);
+        onEnd();
         startDelayedStop();
     }
     protected void startDelayedStop() {
@@ -206,7 +206,6 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         players.foreach(playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
 
         Bukkit.getPluginManager().callEvent(new GameResetArenaEvent<>( (J) this));
-        gamesManager.resetArena(arena);
         arena.setFree();
     }
 
@@ -233,5 +232,18 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         ENDING,
         ENDED
     }
+
+    public abstract void onStart();
+    public abstract void onEnd();
+
+    /**
+     * This method is used to check if the conditions needed to end the game are met
+     */
+    public abstract boolean hasEndConditions();
+
+    public abstract void onPlayerLose(T playerStatus);
+    public abstract void onPlayerWin(T playerStatus);
+
+    public abstract void onPlayerLeave(T playerStatus);
 
 }

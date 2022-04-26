@@ -91,16 +91,4 @@ public abstract class GamesManager<T extends PlayerStatus<T, K, J>, K extends Ar
 
     }
 
-    public abstract void onStart(J game);
-    public abstract void onEnd(J game);
-
-    public abstract boolean checksWinCondition(J game);
-
-    public abstract void onPlayerLost(T playerStatus);
-    public abstract void onPlayerWin(T playerStatus);
-
-    public abstract void onPlayerLeave(T playerStatus);
-
-    public abstract void resetArena(K arena);
-
 }
