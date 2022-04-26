@@ -71,14 +71,15 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         return Collections.unmodifiableCollection(losers.values());
     }
     public final T getPlayerStatus(Player player) {
-        return players.get(player.getUniqueId());
+        T playerStatus = players.get(player.getUniqueId());
+        return playerStatus != null ? playerStatus : losers.get(player.getUniqueId());
     }
 
     public final Status getStatus() {
         return status;
     }
 
-    public void addPlayer(Player player) throws GameAlreadyStarted, PlayerAlreadyInGame {
+    public boolean addPlayer(Player player) throws GameAlreadyStarted, PlayerAlreadyInGame {
         if(!status.equals(Status.STARTING)) {
             throw new GameAlreadyStarted();
         }
@@ -92,37 +93,37 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             } else {
                 startCountdown();
             }
+            return true;
         }
 
+        return false;
     }
-    public void removePlayer(Player player, PlayerLeaveGameEvent.Reason reason) {
+
+    public boolean removePlayer(Player player, PlayerLeaveGameEvent.Reason reason) {
         T playerStatus = getPlayerStatus(player);
         if(playerStatus != null) {
             removePlayer(playerStatus, reason);
+            return true;
         }
+
+        return false;
     }
     protected void removePlayer(T playerStatus, PlayerLeaveGameEvent.Reason reason) throws PlayerNotInGame {
 
         if(playerStatus.getGame() != this) {
             throw new PlayerNotInGame();
         } else if(status.equals(Status.STARTING)) {
-            removeFromStartingGame(playerStatus, reason);
+            if(players.size() == minPlayers) {
+                cancelCountdown();
+            }
+            players.remove(playerStatus);
         } else if(status.equals(Status.STARTED)) {
-            removeFromStartedGame(playerStatus, reason);
+            addLoser(playerStatus);
+        } else {
+            throw new IllegalStateException("Cannot remove player from game in status " + status);
         }
 
-    }
-    protected void removeFromStartingGame(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
-        if(players.size() == minPlayers) {
-            cancelCountdown();
-        }
-        players.remove(playerStatus);
         leaveActions(playerStatus, reason);
-    }
-    protected void removeFromStartedGame(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
-        addLoser(playerStatus);
-        leaveActions(playerStatus, reason);
-        losers.remove(playerStatus);
     }
     protected void leaveActions(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
         Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent<>(playerStatus, reason));
@@ -146,7 +147,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             }
 
             public void onCycle(int cycles) {
-                onCountdown(cycles);
+                onStartCountdown(cycles);
             }
         }, 0, 20);
     }
@@ -154,7 +155,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     /**
      * This method is going to be executed every second during the countdown
      */
-    protected void onCountdown(int secondsPassed) {}
+    protected void onStartCountdown(int secondsPassed) {}
 
     public void addLoser(T playerStatus) throws PlayerNotInGame {
 
@@ -195,6 +196,9 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         gameHandler.onEnd((J) this);
         startDelayedStop();
     }
+    protected void startDelayedStop() {
+        Bukkit.getScheduler().runTaskLater(gameHandler.getPlugin(), r -> stop(), delayEndTime);
+    }
     protected void stop() {
         status = Status.ENDED;
 
@@ -205,12 +209,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         gameHandler.resetArena(arena);
         arena.setFree();
     }
-    protected void startDelayedStop() {
-        Bukkit.getScheduler().runTaskLater(gameHandler.getPlugin(), r -> stop(), delayEndTime);
-    }
 
     public void forceStart() {
-
         if(status != Status.STARTING) {
             return;
         }
@@ -218,7 +218,6 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         start();
     }
     public void forceStop() {
-
         if(status == Status.ENDED) {
             return;
         }
@@ -229,12 +228,10 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     protected abstract T createPlayerStatus(Player player);
 
     public enum Status {
-
         STARTING,
         STARTED,
         ENDING,
         ENDED
-
     }
 
 }
