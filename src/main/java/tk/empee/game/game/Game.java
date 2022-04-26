@@ -168,6 +168,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         UUID playerUUID = playerStatus.getPlayer().getUniqueId();
         if(players.remove(playerUUID) != null) {
             Bukkit.getPluginManager().callEvent(new PlayerLostGameEvent<>(playerStatus));
+
+            playerStatus.setLoser();
             losers.put(playerUUID, playerStatus);
             gameHandler.onPlayerLost(playerStatus);
 
@@ -189,6 +191,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         status = Status.ENDING;
 
         for(T playerStatus : players.values()) {
+            playerStatus.setWinner();
             Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
             gameHandler.onPlayerWin(playerStatus);
         }

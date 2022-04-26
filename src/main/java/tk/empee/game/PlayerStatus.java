@@ -10,8 +10,8 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
 
     private final Player player;
     private final J game;
-
     private boolean teleportFlag;
+    private Boolean isLoser = null;
 
     public PlayerStatus(J game, Player player) {
         this.player = player;
@@ -24,9 +24,9 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
     }
 
     public void teleport(Location location) {
-        allowTeleport();
+        teleportFlag = true;
         player.teleport(location);
-        disallowTeleport();
+        teleportFlag = false;
     }
 
     public final boolean equals(Player player) {
@@ -43,4 +43,18 @@ public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K,
     public int compareTo(@NotNull T o) {
         return player.getUniqueId().compareTo(o.getPlayer().getUniqueId());
     }
+
+    /**
+     * @return <b>true</b>, if the player has lost <br>
+     * <b>false</b>, if the player has won <br>
+     * <b>null</b>, if the player is still in-game
+     */
+    public Boolean isLoser() {
+        return isLoser;
+    }
+    public void setLoser() {
+        isLoser = true;
+    }
+    public void setWinner() { isLoser = false; }
+
 }
