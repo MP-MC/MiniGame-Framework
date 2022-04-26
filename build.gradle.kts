@@ -20,7 +20,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "miniGameLib"
+            artifactId = "gameFramework"
 
             from(components["java"])
         }

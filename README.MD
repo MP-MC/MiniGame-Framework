@@ -1,5 +1,5 @@
-# MiniGame Framework
-The MiniGame framework allows you to create games in a simple and easy way.
+# Game Framework
+The Game framework allows you to create mini-games in a simple and easy way.
 
 ## Features:
 - [x] Start/End timer

@@ -1,2 +1,2 @@
-rootProject.name = "MiniGameLIb"
+rootProject.name = "Game Framework"
 
