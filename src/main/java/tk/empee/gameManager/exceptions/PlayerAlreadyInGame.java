@@ -1,4 +1,4 @@
-package tk.empee.game.exceptions;
+package tk.empee.gameManager.exceptions;
 
 public final class PlayerAlreadyInGame extends IllegalArgumentException {
 

@@ -1,4 +1,4 @@
-package tk.empee.game.helpers;
+package tk.empee.gameManager.helpers;
 
 import java.util.Collection;
 import java.util.function.Consumer;

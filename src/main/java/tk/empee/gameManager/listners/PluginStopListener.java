@@ -1,12 +1,12 @@
-package tk.empee.game.listners;
+package tk.empee.gameManager.listners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import tk.empee.game.Game;
-import tk.empee.game.GamesManager;
+import tk.empee.gameManager.Game;
+import tk.empee.gameManager.GamesManager;
 
 public class PluginStopListener implements Listener {
 

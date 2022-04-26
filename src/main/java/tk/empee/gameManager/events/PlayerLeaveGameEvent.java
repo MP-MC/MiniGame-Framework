@@ -1,11 +1,11 @@
-package tk.empee.game.events;
+package tk.empee.gameManager.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import tk.empee.game.Arena;
-import tk.empee.game.Game;
-import tk.empee.game.PlayerData;
+import tk.empee.gameManager.Arena;
+import tk.empee.gameManager.Game;
+import tk.empee.gameManager.PlayerData;
 
 public class PlayerLeaveGameEvent<T extends PlayerData<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> extends Event {
 

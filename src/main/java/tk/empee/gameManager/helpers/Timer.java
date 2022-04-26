@@ -1,4 +1,4 @@
-package tk.empee.game.helpers;
+package tk.empee.gameManager.helpers;
 
 public abstract class Timer implements Runnable {
 

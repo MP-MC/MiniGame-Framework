@@ -1,14 +1,14 @@
-package tk.empee.game;
+package tk.empee.gameManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
-import tk.empee.game.listners.BlockDisconnectListener;
-import tk.empee.game.listners.CommandBlockerListener;
-import tk.empee.game.listners.PluginStopListener;
-import tk.empee.game.listners.TeleportBlockerListener;
+import tk.empee.gameManager.listners.BlockDisconnectListener;
+import tk.empee.gameManager.listners.CommandBlockerListener;
+import tk.empee.gameManager.listners.PluginStopListener;
+import tk.empee.gameManager.listners.TeleportBlockerListener;
 
 import java.util.ArrayList;
 import java.util.Collection;

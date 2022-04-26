@@ -1,4 +1,4 @@
-package tk.empee.game;
+package tk.empee.gameManager;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

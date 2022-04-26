@@ -1,14 +1,14 @@
-package tk.empee.game;
+package tk.empee.gameManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import tk.empee.game.events.*;
-import tk.empee.game.exceptions.GameAlreadyStarted;
-import tk.empee.game.exceptions.PlayerAlreadyInGame;
-import tk.empee.game.exceptions.PlayerNotInGame;
-import tk.empee.game.helpers.ArrayJoiner;
-import tk.empee.game.helpers.Timer;
+import tk.empee.gameManager.events.*;
+import tk.empee.gameManager.exceptions.GameAlreadyStarted;
+import tk.empee.gameManager.exceptions.PlayerAlreadyInGame;
+import tk.empee.gameManager.exceptions.PlayerNotInGame;
+import tk.empee.gameManager.helpers.ArrayJoiner;
+import tk.empee.gameManager.helpers.Timer;
 
 import java.util.Collection;
 import java.util.Collections;
