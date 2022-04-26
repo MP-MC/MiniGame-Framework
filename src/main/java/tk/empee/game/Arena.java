@@ -1,7 +1,4 @@
-package tk.empee.game.arena;
-
-import tk.empee.game.PlayerStatus;
-import tk.empee.game.game.Game;
+package tk.empee.game;
 
 public class Arena<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 

@@ -5,14 +5,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import tk.empee.game.GameHandler;
+import tk.empee.game.GamesManager;
 import tk.empee.game.PlayerStatus;
 
 public final class TeleportBlockerListener implements Listener {
 
-    private final GameHandler<?, ?, ?> gameHandler;
-    public TeleportBlockerListener(GameHandler<?, ?, ?> gameHandler) {
-        this.gameHandler = gameHandler;
+    private final GamesManager<?, ?, ?> gamesManager;
+    public TeleportBlockerListener(GamesManager<?, ?, ?> gamesManager) {
+        this.gamesManager = gamesManager;
     }
 
 
@@ -20,7 +20,7 @@ public final class TeleportBlockerListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         if(!event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL)) {
-            PlayerStatus<?, ?, ?> playerStatus = gameHandler.getPlayerStatus(player);
+            PlayerStatus<?, ?, ?> playerStatus = gamesManager.getPlayerStatus(player);
             if (!player.isOp() && playerStatus != null) {
                 if(!playerStatus.canTeleport()) {
                     event.setCancelled(true);

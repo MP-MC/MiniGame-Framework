@@ -5,16 +5,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import tk.empee.game.GameHandler;
-import tk.empee.game.game.Game;
+import tk.empee.game.Game;
+import tk.empee.game.GamesManager;
 
 public class PluginStopListener implements Listener {
 
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(PluginStopListener.class);
-    private final GameHandler<?, ?, ?> gameHandler;
+    private final GamesManager<?, ?, ?> gamesManager;
 
-    public PluginStopListener(GameHandler<?, ?, ?> gameHandler) {
-        this.gameHandler = gameHandler;
+    public PluginStopListener(GamesManager<?, ?, ?> gamesManager) {
+        this.gamesManager = gamesManager;
     }
 
     @EventHandler
@@ -23,7 +23,7 @@ public class PluginStopListener implements Listener {
         if(event.getPlugin().equals(plugin)) {
 
             plugin.getLogger().info("Stopping all games...");
-            for(Game<?, ?, ?> game : gameHandler.getRunningGames()) {
+            for(Game<?, ?, ?> game : gamesManager.getRunningGames()) {
                 game.forceStop();
             }
 

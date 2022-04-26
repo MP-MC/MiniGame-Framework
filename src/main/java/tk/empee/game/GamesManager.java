@@ -5,8 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
-import tk.empee.game.arena.Arena;
-import tk.empee.game.game.Game;
 import tk.empee.game.listners.BlockDisconnectListener;
 import tk.empee.game.listners.CommandBlockerListener;
 import tk.empee.game.listners.PluginStopListener;
@@ -18,14 +16,14 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public abstract class GameHandler<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
+public abstract class GamesManager<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
     private final JavaPlugin plugin;
     private final PluginManager pluginManager = Bukkit.getPluginManager();
 
     private final ArrayList<K> arenas = new ArrayList<>();
 
-    public GameHandler(JavaPlugin plugin) {
+    public GamesManager(JavaPlugin plugin) {
         this.plugin = plugin;
 
         pluginManager.registerEvents(new PluginStopListener(this), plugin);

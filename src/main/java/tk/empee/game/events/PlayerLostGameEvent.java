@@ -4,9 +4,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import tk.empee.game.Arena;
+import tk.empee.game.Game;
 import tk.empee.game.PlayerStatus;
-import tk.empee.game.arena.Arena;
-import tk.empee.game.game.Game;
 
 public class PlayerLostGameEvent<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> extends Event {
 

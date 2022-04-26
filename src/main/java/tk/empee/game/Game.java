@@ -1,17 +1,14 @@
-package tk.empee.game.game;
+package tk.empee.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import tk.empee.game.GameHandler;
-import tk.empee.game.PlayerStatus;
-import tk.empee.game.arena.Arena;
 import tk.empee.game.events.*;
 import tk.empee.game.exceptions.GameAlreadyStarted;
 import tk.empee.game.exceptions.PlayerAlreadyInGame;
 import tk.empee.game.exceptions.PlayerNotInGame;
-import tk.empee.game.utils.ArrayJoiner;
-import tk.empee.game.utils.Timer;
+import tk.empee.game.helpers.ArrayJoiner;
+import tk.empee.game.helpers.Timer;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +18,7 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
-    private final GameHandler<T, K, J> gameHandler;
+    private final GamesManager<T, K, J> gamesManager;
 
     private final K arena;
 
@@ -45,8 +42,8 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
      * @param delayEndTime Time in seconds to wait before doing cleaning operations (For instance: <br>
      *                     kicking out players, resetting the arena etc... )
      */
-    public Game(GameHandler<T, K, J> gameHandler, K arena, int minPlayers, int maxPlayers, int countdownTime, int delayEndTime) {
-        this.gameHandler = gameHandler;
+    public Game(GamesManager<T, K, J> gamesManager, K arena, int minPlayers, int maxPlayers, int countdownTime, int delayEndTime) {
+        this.gamesManager = gamesManager;
 
         this.arena = arena;
         this.arena.setBusy((J) this);
@@ -127,7 +124,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
     }
     protected void leaveActions(T playerStatus, PlayerLeaveGameEvent.Reason reason) {
         Bukkit.getPluginManager().callEvent(new PlayerLeaveGameEvent<>(playerStatus, reason));
-        gameHandler.onPlayerLeave(playerStatus);
+        gamesManager.onPlayerLeave(playerStatus);
     }
 
     protected void cancelCountdown() {
@@ -141,7 +138,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
             return;
         }
 
-        countdownTask = Bukkit.getScheduler().runTaskTimer(gameHandler.getPlugin(), new Timer(countdownTime) {
+        countdownTask = Bukkit.getScheduler().runTaskTimer(gamesManager.getPlugin(), new Timer(countdownTime) {
             public void onLastCycle() {
                 start();
             }
@@ -171,9 +168,9 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
 
             playerStatus.setLoser();
             losers.put(playerUUID, playerStatus);
-            gameHandler.onPlayerLost(playerStatus);
+            gamesManager.onPlayerLost(playerStatus);
 
-            if(gameHandler.checksWinCondition((J) this)) {
+            if(gamesManager.checksWinCondition((J) this)) {
                 prepareStop();
             }
         }
@@ -184,7 +181,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         cancelCountdown();
 
         status = Status.STARTED;
-        gameHandler.onStart((J) this);
+        gamesManager.onStart((J) this);
     }
     protected void prepareStop() {
         Bukkit.getPluginManager().callEvent(new GameEndEvent<>((J) this));
@@ -193,14 +190,14 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         for(T playerStatus : players.values()) {
             playerStatus.setWinner();
             Bukkit.getPluginManager().callEvent(new PlayerWinGameEvent<>(playerStatus));
-            gameHandler.onPlayerWin(playerStatus);
+            gamesManager.onPlayerWin(playerStatus);
         }
 
-        gameHandler.onEnd((J) this);
+        gamesManager.onEnd((J) this);
         startDelayedStop();
     }
     protected void startDelayedStop() {
-        Bukkit.getScheduler().runTaskLater(gameHandler.getPlugin(), r -> stop(), delayEndTime);
+        Bukkit.getScheduler().runTaskLater(gamesManager.getPlugin(), r -> stop(), delayEndTime);
     }
     protected void stop() {
         status = Status.ENDED;
@@ -209,7 +206,7 @@ public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K
         players.foreach(playerStatus -> leaveActions(playerStatus, PlayerLeaveGameEvent.Reason.GAME_ENDED));
 
         Bukkit.getPluginManager().callEvent(new GameResetArenaEvent<>( (J) this));
-        gameHandler.resetArena(arena);
+        gamesManager.resetArena(arena);
         arena.setFree();
     }
 

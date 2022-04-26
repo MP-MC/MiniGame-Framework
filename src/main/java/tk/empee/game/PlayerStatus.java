@@ -3,8 +3,6 @@ package tk.empee.game;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import tk.empee.game.arena.Arena;
-import tk.empee.game.game.Game;
 
 public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> implements Comparable<T> {
 
