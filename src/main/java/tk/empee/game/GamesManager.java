@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public abstract class GamesManager<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
+public abstract class GamesManager<T extends PlayerData<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
     private final JavaPlugin plugin;
     private final PluginManager pluginManager = Bukkit.getPluginManager();

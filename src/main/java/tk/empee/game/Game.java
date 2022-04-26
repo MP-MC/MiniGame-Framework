@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-public abstract class Game<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
+public abstract class Game<T extends PlayerData<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
     private final GamesManager<T, K, J> gamesManager;
 

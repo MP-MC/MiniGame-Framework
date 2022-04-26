@@ -4,14 +4,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerStatus<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> implements Comparable<T> {
+public class PlayerData<T extends PlayerData<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> implements Comparable<T> {
 
     private final Player player;
     private final J game;
     private boolean teleportFlag;
     private Boolean isLoser = null;
 
-    public PlayerStatus(J game, Player player) {
+    public PlayerData(J game, Player player) {
         this.player = player;
         this.game = game;
     }

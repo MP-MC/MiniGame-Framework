@@ -6,7 +6,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import tk.empee.game.GamesManager;
-import tk.empee.game.PlayerStatus;
+import tk.empee.game.PlayerData;
 import tk.empee.game.events.PlayerLeaveGameEvent;
 
 public class BlockDisconnectListener implements Listener {
@@ -19,10 +19,10 @@ public class BlockDisconnectListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDisconnect(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        PlayerStatus<?, ?, ?> playerStatus = gamesManager.getPlayerStatus(player);
+        PlayerData<?, ?, ?> playerData = gamesManager.getPlayerStatus(player);
 
-        if(playerStatus != null) {
-            playerStatus.getGame().removePlayer(player, PlayerLeaveGameEvent.Reason.DISCONNECT);
+        if(playerData != null) {
+            playerData.getGame().removePlayer(player, PlayerLeaveGameEvent.Reason.DISCONNECT);
         }
     }
 

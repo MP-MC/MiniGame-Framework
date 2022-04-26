@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class Arena<T extends PlayerStatus<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
+public abstract class Arena<T extends PlayerData<T, K, J>, K extends Arena<T, K, J>, J extends Game<T, K, J>> {
 
     private Plugin plugin = JavaPlugin.getProvidingPlugin(Arena.class);
     private J game;
